@@ -1,0 +1,72 @@
+openapi: 3.1.0
+
+info:
+  title: Redirect Service API
+  description: API responsible for resolving short URL codes and redirecting visitors to their original URLs. The health endpoint is currently implemented; the redirect endpoint is planned.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3102
+    description: Local development server
+
+tags:
+  - name: Health
+    description: Service health monitoring
+  - name: Redirect
+    description: Short URL redirection
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Check service health
+      description: Currently implemented endpoint used to verify that the Redirect Service is running.
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  service:
+                    type: string
+                    example: redirect-service
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /{code}:
+    get:
+      tags:
+        - Redirect
+      summary: Redirect to the original URL
+      description: Planned endpoint that resolves a short code and redirects the visitor to the original URL.
+      parameters:
+        - name: code
+          in: path
+          required: true
+          description: Unique short URL code
+          schema:
+            type: string
+            example: abc123
+      responses:
+        "302":
+          description: Temporary redirect to the original URL
+          headers:
+            Location:
+              description: Original destination URL
+              schema:
+                type: string
+                format: uri
+                example: https://example.com/articles/software-engineering
+        "404":
+          description: Short URL not found
+        "410":
+          description: Short URL has expired or is no longer active
+        "500":
+          description: Internal server error
